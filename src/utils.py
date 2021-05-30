@@ -1,9 +1,21 @@
 import os
+import numpy as np
 from logging import getLogger, INFO, DEBUG, Formatter, FileHandler, StreamHandler
 
 from config import CFG
 
 def get_logger(name, logfile='log.txt'):
+    """
+
+    Create and return Logger module.
+
+    Args:
+        name (str): module name logger is envoked in
+        logfile (str): output file name
+
+    Returns:
+        logger: Logger 
+    """
     logger = getLogger(name)
     logger.setLevel(DEBUG)
     
@@ -23,6 +35,22 @@ def get_logger(name, logfile='log.txt'):
     logger.addHandler(stream_handler)
 
     return logger
+
+
+def seed_everything(seed=42):
+    """
+    Fix seed values
+    
+    Args:
+        seed (int): seed value
+    
+    Returns:
+        None    
+    """
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed
+    
 
 
 if __name__ == '__main__':
