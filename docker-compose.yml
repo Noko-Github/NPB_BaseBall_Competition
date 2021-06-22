@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+    baseball:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        # image: jupyter/scipy-noteboo
+        ports: 
+            - 8080:8080
+        volumes:
+        - .:/home/work
