@@ -1,7 +1,9 @@
 import os
-import numpy as np
 import random
 from logging import getLogger, INFO, DEBUG, Formatter, FileHandler, StreamHandler
+
+import numpy as np
+import pandas as pd
 
 from config import CFG
 
@@ -73,6 +75,7 @@ def reduce_mem_usage(df, verbose=False):
     if verbose:
         print('{:.2f}Mb->{:.2f}Mb({:.1f}% reduction)'.format(
             start_mem, end_mem, 100 * (start_mem - end_mem) / start_mem))
+            
     return df
     
 
