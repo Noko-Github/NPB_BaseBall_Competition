@@ -41,9 +41,17 @@ if __name__ == '__main__':
 	train_df = pd.merge(train_df, game_df.drop(['bgTop', 'bgBottom'], axis=1), on='gameID', how='left')
 	test_df = pd.merge(test_df, game_df.drop(['bgTop', 'bgBottom'], axis=1), on='gameID', how='left')
 
-	# add team postfix to evacuate same batter/picther name
+	# add team postfix to avoid same batter/picther name
 	train_df = preprocess.add_team_postfix(train_df)
 	test_df = preprocess.add_team_postfix(test_df)
+
+	# trainとtestに共通のピッチャーを取得
+	train_pitcher = set(train_df['pitcher'].unique())
+	test_pitcher = set(test_df['pitcher'].unique())
+	train_batter = set(train_df['batter'].unique())
+	test_batter = set(test_df['batter'].unique())
+
+	# trainとtestに共通のバッターを取得
 
 	# merge train and test
 	input_df = pd.concat([train_df, test_df], axis=0).reset_index(drop=True)
