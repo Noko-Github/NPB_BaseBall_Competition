@@ -45,19 +45,21 @@ if __name__ == '__main__':
 	train_df = preprocess.add_team_postfix(train_df)
 	test_df = preprocess.add_team_postfix(test_df)
 
-	# trainとtestに共通のピッチャーを取得
+	# trainとtestに共通のピッチャーを取\
 	train_pitcher = set(train_df['pitcher'].unique())
 	test_pitcher = set(test_df['pitcher'].unique())
 	train_batter = set(train_df['batter'].unique())
 	test_batter = set(test_df['batter'].unique())
-
-	# trainとtestに共通のバッターを取得
 
 	# merge train and test
 	input_df = pd.concat([train_df, test_df], axis=0).reset_index(drop=True)
 	del train_df, test_df, game_df
 
 	input_df = preprocess.fill_na(input_df)
+
+	base_df = preprocess.get_base_features(input_df, train_pitcher, test_pitcher, train_batter, test_batter)
+	print(base_df)
+
 
 	
 	

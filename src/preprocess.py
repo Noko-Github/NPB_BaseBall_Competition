@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.decomposition import NMF
 from sklearn.preprocessing import MinMaxScaler
@@ -38,16 +40,15 @@ def fill_na(input_df):
     return output_df
 
 
-def get_base_features(input_df):
-    seed_everything(seed=SEED)
+def get_base_features(input_df, train_pitcher, test_pitcher, train_batter, test_batter):
     output_df = input_df.copy()
 
     output_df['inning'] = 2 * (output_df['inning'].str[0].astype(int) - 1) + output_df['inning'].str.contains('裏')
 
     output_df['pitcherCommon'] = output_df['pitcher']
     output_df['batterCommon'] = output_df['batter']
-    output_df.loc[~(output_df['pitcherCommon'].isin(tr_pitcher & ts_pitcher)), 'pitcherCommon'] = np.nan
-    output_df.loc[~(output_df['batterCommon'].isin(tr_batter & ts_batter)), 'batterCommon'] = np.nan
+    output_df.loc[~(output_df['pitcherCommon'].isin(train_pitcher & test_pitcher)), 'pitcherCommon'] = np.nan
+    output_df.loc[~(output_df['batterCommon'].isin(train_batter & test_batter)), 'batterCommon'] = np.nan
 
     # label encoding
     cat_cols = output_df.select_dtypes(include=['object']).columns
@@ -174,19 +175,19 @@ def get_pivot_NMF54_features(input_df, n, value_col):
 shift features
 '''
 def get_diff_feature(input_df, value_col, periods, in_inning=True, aggfunc=np.median):
-pivot_df = pd.pivot_table(input_df, index='subGameID', columns='outCount', values=value_col, aggfunc=aggfunc)
-if in_inning:
-    dfs = []
-    for inning in range(9):
-        df0 = pivot_df.loc[:, [out+inning*6 for out in range(0,3)]].diff(periods, axis=1)
-        df1 = pivot_df.loc[:, [out+inning*6 for out in range(3,6)]].diff(periods, axis=1)
-        dfs += [df0, df1]
-    pivot_df = pd.concat(dfs, axis=1).stack()
-else:
-    df0 = pivot_df.loc[:, [out+inning*6 for inning in range(9) for out in range(0,3)]].diff(periods, axis=1)
-    df1 = pivot_df.loc[:, [out+inning*6 for inning in range(9) for out in range(3,6)]].diff(periods, axis=1)
-    pivot_df = pd.concat([df0, df1], axis=1).stack()
-return pivot_df
+    pivot_df = pd.pivot_table(input_df, index='subGameID', columns='outCount', values=value_col, aggfunc=aggfunc)
+    if in_inning:
+        dfs = []
+        for inning in range(9):
+            df0 = pivot_df.loc[:, [out+inning*6 for out in range(0,3)]].diff(periods, axis=1)
+            df1 = pivot_df.loc[:, [out+inning*6 for out in range(3,6)]].diff(periods, axis=1)
+            dfs += [df0, df1]
+        pivot_df = pd.concat(dfs, axis=1).stack()
+    else:
+        df0 = pivot_df.loc[:, [out+inning*6 for inning in range(9) for out in range(0,3)]].diff(periods, axis=1)
+        df1 = pivot_df.loc[:, [out+inning*6 for inning in range(9) for out in range(3,6)]].diff(periods, axis=1)
+        pivot_df = pd.concat([df0, df1], axis=1).stack()
+    return pivot_df
 
 
 def get_shift_feature(input_df, value_col, periods, in_inning=True, aggfunc=np.median):
@@ -298,5 +299,5 @@ def get_skip(input_df):
 
     output_df['next_skip'] = output_df.index.map(next_skip_map).fillna(0).astype(np.int8)
     output_df['prev_skip'] = output_df.index.map(prev_skip_map).fillna(0).astype(np.int8)
-    
+
     return output_df
